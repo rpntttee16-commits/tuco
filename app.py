@@ -120,6 +120,7 @@ def handle_message(event):
     if event.source.type != "group":
         return
     group_id = event.source.group_id
+    print(f"GROUP ID: {group_id}")
     user_id = event.source.user_id
     text = event.message.text
     handle_text(group_id, text, user_id)
