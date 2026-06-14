@@ -7,6 +7,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime, timezone, timedelta
 import os
+import json
 
 # Bangkok timezone (UTC+7)
 BKK = timezone(timedelta(hours=7))
@@ -30,8 +31,8 @@ def get_client():
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive",
     ]
-    creds = Credentials.from_service_account_file(
-        os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"], scopes=scopes
+    creds = Credentials.from_service_account_info(
+        json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"]), scopes=scopes
     )
     return gspread.authorize(creds)
 
