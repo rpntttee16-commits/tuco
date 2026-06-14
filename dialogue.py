@@ -3,11 +3,8 @@ dialogue.py — จัดการ state การสนทนาใน LINE Gro
 และเรียก Claude API เพื่อสร้างข้อความ
 """
 
-import anthropic
 import os
 from sheets import ACCOUNT_TABS, get_all_balances, today_bkk, append_transaction
-
-client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 # State ของแต่ละ group (group_id → state dict)
 group_states: dict = {}
@@ -72,26 +69,19 @@ def build_reconfirm_message(balances: dict, date_str: str) -> str:
 
 # ─── Claude helpers ───────────────────────────────────────────────────────────
 
-def parse_amount_with_claude(text: str) -> float | None:
-    """แปลงข้อความเป็นตัวเลข รองรับ 135k / 135,000 / หนึ่งแสน ฯลฯ"""
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=100,
-        messages=[{
-            "role": "user",
-            "content": (
-                "แปลงข้อความนี้เป็นตัวเลขทศนิยม 2 ตำแหน่ง "
-                "ตอบแค่ตัวเลขเท่านั้น ไม่มีหน่วย ไม่มีคำอธิบาย\n"
-                "ถ้าแปลงไม่ได้ตอบว่า ERROR\n\n"
-                f"ข้อความ: {text}"
-            ),
-        }],
-    )
-    result = response.content[0].text.strip()
-    if result == "ERROR":
-        return None
+def parse_amount(text: str) -> float | None:
+    """
+    แปลงข้อความตัวเลขเป็น float
+    รองรับ: 3000 / 3,000 / 3.5k / 3.5K
+    """
+    text = text.strip().replace(",", "")
+    if text.lower().endswith("k"):
+        try:
+            return round(float(text[:-1]) * 1000, 2)
+        except ValueError:
+            return None
     try:
-        return float(result.replace(",", ""))
+        return round(float(text), 2)
     except ValueError:
         return None
 
@@ -161,7 +151,7 @@ def handle_message(group_id: str, text: str) -> str | None:
         if parsed is None:
             return None
 
-        amount = parse_amount_with_claude(parsed["amount_text"])
+        amount = parse_amount(parsed["amount_text"])
         if amount is None:
             return (
                 "ไม่เข้าใจจำนวนเงินครับ\n"
@@ -215,7 +205,7 @@ def handle_message(group_id: str, text: str) -> str | None:
     # ── รับยอดที่ถูกต้อง ──
     elif step.startswith("correcting:"):
         tab = step.split(":", 1)[1]
-        amount = parse_amount_with_claude(text)
+        amount = parse_amount(text)
         if amount is None:
             return "ไม่เข้าใจตัวเลขครับ เช่น 135000"
 
