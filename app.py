@@ -7,7 +7,7 @@ from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
-from sheets import get_all_outstanding, append_record, ACCOUNTS
+from dialogue import handle_message, start_daily_summary
 
 app = Flask(__name__)
 
