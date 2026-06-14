@@ -147,6 +147,10 @@ def handle_message(group_id: str, text: str) -> str | None:
 
     # ── idle: รับคำสั่งบันทึกรายการ ──
     if step == "idle":
+        # คำสั่งสรุปยอด
+        if text.strip().lower() in ["สรุป", "summary", "ยอด"]:
+            return start_daily_summary(group_id)
+
         parsed = parse_transaction_command(text)
         if parsed is None:
             return None
