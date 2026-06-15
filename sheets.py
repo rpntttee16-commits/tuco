@@ -117,6 +117,7 @@ def append_confirmed_balances(confirmed: dict, today_str: str):
     """
     บันทึกยอดที่ทีมยืนยันแล้ว
     confirmed = { "TTB": 135000.0, "CS": 10000.0, "CC": 500.0 }
+    ถ้ายอดต่างจากที่ระบบคิด (มีการแก้ไข) → ไฮไลต์แถวเป็นสีแดง
     """
     for tab_name, new_balance in confirmed.items():
         info = get_latest_balance(tab_name)
@@ -132,9 +133,17 @@ def append_confirmed_balances(confirmed: dict, today_str: str):
             "",
             f"{diff:,.2f}" if diff != 0 else "",
             f"{new_balance:,.2f}",
-            "ยืนยันโดยทีม",
+            "ยืนยันโดยทีม" if diff == 0 else f"แก้ไขจาก {info['outstanding']:,.2f}",
         ]
         sheet.append_row(new_row, value_input_option="USER_ENTERED")
+
+        # ถ้ามีการแก้ไข → ทำสีแดงทั้งแถว
+        if diff != 0:
+            all_rows = sheet.get_all_values()
+            row_num = len(all_rows)
+            sheet.format(f"A{row_num}:G{row_num}", {
+                "backgroundColor": {"red": 1.0, "green": 0.8, "blue": 0.8}
+            })
 
 
 def today_bkk() -> str:

@@ -88,10 +88,11 @@ def parse_amount(text: str) -> float | None:
 
 def classify_reply(text: str) -> str:
     t = text.strip().lower()
-    if any(w in t for w in ["ใช่", "yes", "ถูก", "ok", "โอเค", "✅", "confirmed", "ยืนยัน"]):
-        return "yes"
+    # ตรวจ "no" ก่อน เพราะ "ไม่ใช่" มีคำว่า "ใช่" อยู่ด้วย
     if any(w in t for w in ["ไม่ใช่", "no", "ผิด", "ไม่", "❌", "แก้"]):
         return "no"
+    if any(w in t for w in ["ใช่", "yes", "ถูก", "ok", "โอเค", "✅", "confirmed", "ยืนยัน"]):
+        return "yes"
     return "unknown"
 
 
