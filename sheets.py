@@ -13,7 +13,7 @@ import json
 BKK = timezone(timedelta(hours=7))
 
 # ชื่อ tab ทั้งหมดในระบบ — ต้องตรงกับชื่อ tab ใน Google Sheets
-ACCOUNT_TABS = ["TTB", "CS", "CC"]
+ACCOUNT_TABS = ["TTB", "KS", "KTB", "CS", "CC"]
 
 # คอลัมน์: A=no, B=date, C=type, D=sub-type, E=amount, F=Outstanding, G=note
 COL_NO          = 0
